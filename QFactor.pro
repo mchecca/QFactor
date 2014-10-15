@@ -13,8 +13,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        QFactorMain.cpp
+        QFactorMain.cpp \
+    TOTP.cpp
 
-HEADERS  += QFactorMain.h
+HEADERS  += QFactorMain.h \
+    TOTP.h
 
 FORMS    += QFactorMain.ui
