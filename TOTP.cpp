@@ -9,3 +9,8 @@ QString TOTP::key()
 {
     return this->m_key;
 }
+
+int TOTP::generate()
+{
+    return -1;
+}

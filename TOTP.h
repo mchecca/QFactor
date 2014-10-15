@@ -10,6 +10,7 @@ class TOTP
 public:
     TOTP(QString key);
     QString key();
+    int generate();
 
 private:
     QString m_key;
