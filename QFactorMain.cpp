@@ -21,6 +21,8 @@ QFactorMain::QFactorMain(QWidget *parent) :
 
     connect(ui->btnAdd, SIGNAL(clicked()), this, SLOT(addClicked()));
     connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshTimerTimeout()));
+
+    refreshTimerTimeout();
 }
 
 QFactorMain::~QFactorMain()
@@ -54,6 +56,8 @@ void QFactorMain::refreshTimerTimeout()
 {
     static qint64 time = 0;
     qint64 currentTime = QDateTime::currentMSecsSinceEpoch() / 1000;
+    int untilRefresh = TOKEN_REFRESH_RATE - (currentTime % TOKEN_REFRESH_RATE);
+    ui->lblRefresh->setText(QString("Seconds until refresh: %1").arg(QString::number(untilRefresh)));
     if ((currentTime % TOKEN_REFRESH_RATE) == 0 || ((currentTime - time) > TOKEN_REFRESH_RATE))
     {
         time = currentTime;

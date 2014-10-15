@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_2">
+    <item row="2" column="0">
+     <widget class="QListWidget" name="lstTotp"/>
+    </item>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="1">
@@ -47,7 +50,11 @@
      </layout>
     </item>
     <item row="1" column="0">
-     <widget class="QListWidget" name="lstTotp"/>
+     <widget class="QLabel" name="lblRefresh">
+      <property name="text">
+       <string>Seconds until refresh: 0</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
