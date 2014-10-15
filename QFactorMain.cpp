@@ -9,11 +9,14 @@ QFactorMain::QFactorMain(QWidget *parent) :
     ui(new Ui::QFactorMain)
 {
     ui->setupUi(this);
+    settings = new QSettings("Michael Checca", "QFactor");
 
     /* center the window */
     QRect screenFrame = frameGeometry();
     screenFrame.moveCenter(QDesktopWidget().availableGeometry().center());
     move(screenFrame.topLeft());
+
+    loadSettings();
 
     refreshTimer = new QTimer(this);
     refreshTimer->setInterval(1000);
@@ -27,11 +30,13 @@ QFactorMain::QFactorMain(QWidget *parent) :
 
 QFactorMain::~QFactorMain()
 {
+    saveSettings();
     delete ui;
     foreach (TOTP *t, totpList)
         delete t;
     refreshTimer->stop();
     delete refreshTimer;
+    delete settings;
 }
 
 void QFactorMain::addClicked()
@@ -42,14 +47,9 @@ void QFactorMain::addClicked()
         QMessageBox::information(this, "QFactor", "Name and key cannot be empty");
         return;
     }
-    TOTP *totp = new TOTP(name, key);
-    totpList.append(totp);
-    QListWidgetItem *item = new QListWidgetItem(totp->name());
-    item->setData(Qt::UserRole, qVariantFromValue((void *) totp));
-    ui->lstTotp->addItem(item);
+    addTOTP(name, key);
     ui->txtName->clear();
     ui->txtKey->clear();
-    refreshTotps();
 }
 
 void QFactorMain::refreshTimerTimeout()
@@ -65,6 +65,17 @@ void QFactorMain::refreshTimerTimeout()
     }
 }
 
+void QFactorMain::addTOTP(QString name, QString key)
+{
+    TOTP *totp = new TOTP(name, key);
+    totpList.append(totp);
+    QListWidgetItem *item = new QListWidgetItem(totp->name());
+    item->setData(Qt::UserRole, qVariantFromValue((void *) totp));
+    ui->lstTotp->addItem(item);
+    refreshTotps();
+    saveSettings();
+}
+
 void QFactorMain::refreshTotps()
 {
     for (int i = 0; i < ui->lstTotp->count(); i++)
@@ -74,5 +85,39 @@ void QFactorMain::refreshTotps()
         int key = t->generate();
         QString text = QString("%1 -- %2").arg(t->name(), (key == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(key));
         item->setText(text);
+    }
+}
+
+void QFactorMain::loadSettings()
+{
+    QPoint location = settings->value("ui/location", this->pos()).toPoint();
+    QSize size = settings->value("ui/size", this->size()).toSize();
+    this->move(location);
+    this->resize(size);
+    int totp_count = settings->value("totp/count", QVariant(0)).toInt();
+    for (int i = 0; i < totp_count; i++)
+    {
+        QString nameKey = QString("totp/%1/name").arg(QString::number(i));
+        QString keyKey = QString("totp/%1/key").arg(QString::number(i));
+        QString name = settings->value(nameKey, QString()).toString();
+        QString key = settings->value(keyKey, QString()).toString();
+        addTOTP(name, key);
+    }
+    refreshTotps();
+}
+
+void QFactorMain::saveSettings()
+{
+    settings->setValue("ui/location", this->pos());
+    settings->setValue("ui/size", this->size());
+    settings->setValue("totp/count", totpList.count());
+    TOTP *t = NULL;
+    for (int i = 0; i < totpList.count(); i++)
+    {
+        t = totpList.at(i);
+        QString nameKey = QString("totp/%1/name").arg(QString::number(i));
+        QString keyKey = QString("totp/%1/key").arg(QString::number(i));
+        settings->setValue(nameKey, t->name());
+        settings->setValue(keyKey, t->key());
     }
 }

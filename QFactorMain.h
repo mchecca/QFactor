@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QList>
 #include <QListWidgetItem>
+#include <QSettings>
 #include <QTimer>
 #include "TOTP.h"
 
@@ -28,8 +29,12 @@ private:
     Ui::QFactorMain *ui;
     QList<TOTP*> totpList;
     QTimer *refreshTimer;
+    QSettings *settings;
 
+    void addTOTP(QString name, QString key);
     void refreshTotps();
+    void loadSettings();
+    void saveSettings();
 };
 
 #endif // QFACTORMAIN_H
