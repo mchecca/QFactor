@@ -4,8 +4,10 @@
 #include <QMainWindow>
 #include <QList>
 #include <QListWidgetItem>
+#include <QTimer>
 #include "TOTP.h"
 
+#define TOKEN_REFRESH_RATE 30 /* seconds */
 namespace Ui {
 class QFactorMain;
 }
@@ -21,10 +23,14 @@ public:
 public slots:
     void addClicked();
     void totpItemChanged(QListWidgetItem *item);
+    void refreshTimerTimeout();
 
 private:
     Ui::QFactorMain *ui;
     QList<TOTP*> totpList;
+    QTimer *refreshTimer;
+
+    void refreshTotps();
 };
 
 #endif // QFACTORMAIN_H
