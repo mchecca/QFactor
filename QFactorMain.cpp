@@ -20,7 +20,6 @@ QFactorMain::QFactorMain(QWidget *parent) :
     refreshTimer->start();
 
     connect(ui->btnAdd, SIGNAL(clicked()), this, SLOT(addClicked()));
-    connect(ui->lstTotp, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(totpItemChanged(QListWidgetItem*)));
     connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshTimerTimeout()));
 }
 
@@ -49,11 +48,6 @@ void QFactorMain::addClicked()
     ui->txtName->clear();
     ui->txtKey->clear();
     refreshTotps();
-}
-
-void QFactorMain::totpItemChanged(QListWidgetItem *item)
-{
-    TOTP *totp = (TOTP*) item->data(Qt::UserRole).value<void*>();
 }
 
 void QFactorMain::refreshTimerTimeout()

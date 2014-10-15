@@ -22,7 +22,6 @@ public:
 
 public slots:
     void addClicked();
-    void totpItemChanged(QListWidgetItem *item);
     void refreshTimerTimeout();
 
 private:
