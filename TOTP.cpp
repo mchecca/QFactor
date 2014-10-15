@@ -1,8 +1,16 @@
 #include "TOTP.h"
+#include "liboath/oath.h"
+#include <time.h>
 
-TOTP::TOTP(QString key)
+TOTP::TOTP(QString name, QString key)
 {
+    this->m_name = name;
     this->m_key = key;
+}
+
+QString TOTP::name()
+{
+    return this->m_name;
 }
 
 QString TOTP::key()
@@ -12,5 +20,32 @@ QString TOTP::key()
 
 int TOTP::generate()
 {
-    return -1;
+    if (oath_init() != OATH_OK)
+        return -1;
+
+    char *key = strdup(m_key.toStdString().c_str());
+    size_t key_len= strlen(key);
+    char *secret = NULL;
+    size_t secret_len = 0;
+    if (oath_base32_decode(key, key_len, &secret, &secret_len) != OATH_OK)
+    {
+        free(key);
+        return TOTP_INVALID_KEY;
+    }
+    time_t time_now = time(0);
+    char *output = (char *) calloc (sizeof(char*), 7);
+    if (oath_totp_generate(secret, secret_len, time_now, 30, 0, 6, output) != OATH_OK)
+    {
+        free(key);
+        free(secret);
+        free(output);
+        return TOTP_ERROR;
+    }
+    int token = atoi(output);
+    free(key);
+    free(secret);
+    free(output);
+
+    oath_done();
+    return token;
 }

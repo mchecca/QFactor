@@ -40,9 +40,9 @@ void QFactorMain::addClicked()
         QMessageBox::information(this, "QFactor", "Name and key cannot be empty");
         return;
     }
-    TOTP *totp = new TOTP(key);
+    TOTP *totp = new TOTP(name, key);
     totpList.append(totp);
-    QListWidgetItem *item = new QListWidgetItem(totp->key());
+    QListWidgetItem *item = new QListWidgetItem(totp->name());
     item->setData(Qt::UserRole, qVariantFromValue((void *) totp));
     ui->lstTotp->addItem(item);
     ui->txtName->clear();
@@ -67,6 +67,8 @@ void QFactorMain::refreshTotps()
     {
         QListWidgetItem *item = ui->lstTotp->item(i);
         TOTP *t = (TOTP*) item->data(Qt::UserRole).value<void*>();
-        item->setText(QString("%1 -- %2").arg(t->key(), QString::number(t->generate())));
+        int key = t->generate();
+        QString text = QString("%1 -- %2").arg(t->name(), (key == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(key));
+        item->setText(text);
     }
 }
