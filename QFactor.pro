@@ -20,3 +20,6 @@ HEADERS  += QFactorMain.h \
     TOTP.h
 
 FORMS    += QFactorMain.ui
+
+CONFIG += link_pkgconfig
+PKGCONFIG += liboath
