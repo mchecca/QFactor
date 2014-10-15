@@ -24,6 +24,8 @@ public:
 public slots:
     void addClicked();
     void refreshTimerTimeout();
+    void totpItemRowChanged(int row);
+    void deleteClicked();
 
 private:
     Ui::QFactorMain *ui;

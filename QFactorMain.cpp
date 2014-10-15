@@ -24,6 +24,8 @@ QFactorMain::QFactorMain(QWidget *parent) :
 
     connect(ui->btnAdd, SIGNAL(clicked()), this, SLOT(addClicked()));
     connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshTimerTimeout()));
+    connect(ui->lstTotp, SIGNAL(currentRowChanged(int)), this, SLOT(totpItemRowChanged(int)));
+    connect(ui->btnDelete, SIGNAL(clicked()), this, SLOT(deleteClicked()));
 
     refreshTimerTimeout();
 }
@@ -63,6 +65,24 @@ void QFactorMain::refreshTimerTimeout()
         time = currentTime;
         refreshTotps();
     }
+}
+
+void QFactorMain::totpItemRowChanged(int row)
+{
+    ui->btnDelete->setEnabled(ui->lstTotp->item(row) ? true : false);
+}
+
+void QFactorMain::deleteClicked()
+{
+    QListWidgetItem *item = ui->lstTotp->currentItem();
+    if (!item)
+        return;
+    TOTP *t = (TOTP*) item->data(Qt::UserRole).value<void*>();
+    totpList.removeOne(t);
+    ui->lstTotp->takeItem(ui->lstTotp->currentRow());
+    ui->lstTotp->raise();
+    refreshTotps();
+    saveSettings();
 }
 
 void QFactorMain::addTOTP(QString name, QString key)
