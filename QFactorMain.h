@@ -9,6 +9,7 @@
 #include "TOTP.h"
 
 #define TOKEN_REFRESH_RATE 30 /* seconds */
+
 namespace Ui {
 class QFactorMain;
 }
@@ -24,13 +25,16 @@ public:
 public slots:
     void addClicked();
     void refreshTimerTimeout();
+    void clipboardTimerTimeout();
     void totpItemRowChanged(int row);
+    void totpDoubleClicked(QModelIndex index);
     void deleteClicked();
 
 private:
     Ui::QFactorMain *ui;
     QList<TOTP*> totpList;
     QTimer *refreshTimer;
+    QTimer *clipboardTimer;
     QSettings *settings;
 
     void addTOTP(QString name, QString key);

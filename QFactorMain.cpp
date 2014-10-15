@@ -2,6 +2,7 @@
 #include <QDesktopWidget>
 #include <QMessageBox>
 #include <QDateTime>
+#include <QClipboard>
 #include "ui_QFactorMain.h"
 
 QFactorMain::QFactorMain(QWidget *parent) :
@@ -9,6 +10,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
     ui(new Ui::QFactorMain)
 {
     ui->setupUi(this);
+    ui->lblStatus->setText(QString());
     settings = new QSettings("Michael Checca", "QFactor");
 
     /* center the window */
@@ -22,9 +24,14 @@ QFactorMain::QFactorMain(QWidget *parent) :
     refreshTimer->setInterval(1000);
     refreshTimer->start();
 
+    clipboardTimer = new QTimer(this);
+    clipboardTimer->setInterval(5000);
+
     connect(ui->btnAdd, SIGNAL(clicked()), this, SLOT(addClicked()));
     connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshTimerTimeout()));
+    connect(clipboardTimer, SIGNAL(timeout()), this, SLOT(clipboardTimerTimeout()));
     connect(ui->lstTotp, SIGNAL(currentRowChanged(int)), this, SLOT(totpItemRowChanged(int)));
+    connect(ui->lstTotp, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(totpDoubleClicked(QModelIndex)));
     connect(ui->btnDelete, SIGNAL(clicked()), this, SLOT(deleteClicked()));
 
     refreshTimerTimeout();
@@ -37,7 +44,9 @@ QFactorMain::~QFactorMain()
     foreach (TOTP *t, totpList)
         delete t;
     refreshTimer->stop();
+    clipboardTimer->stop();
     delete refreshTimer;
+    delete clipboardTimer;
     delete settings;
 }
 
@@ -67,9 +76,28 @@ void QFactorMain::refreshTimerTimeout()
     }
 }
 
+void QFactorMain::clipboardTimerTimeout()
+{
+    ui->lblStatus->setText(QString());
+    clipboardTimer->stop();
+}
+
 void QFactorMain::totpItemRowChanged(int row)
 {
     ui->btnDelete->setEnabled(ui->lstTotp->item(row) ? true : false);
+}
+
+void QFactorMain::totpDoubleClicked(QModelIndex index)
+{
+    TOTP *t = (TOTP*) index.data(Qt::UserRole).value<void*>();
+    QClipboard *clipboard = QApplication::clipboard();
+    if (!t || !clipboard)
+        return;
+    QString token = QString::number(t->generate());
+    clipboard->setText(token);
+    clipboardTimer->stop();
+    clipboardTimer->start();
+    ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(token));
 }
 
 void QFactorMain::deleteClicked()
