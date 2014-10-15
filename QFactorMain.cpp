@@ -48,12 +48,12 @@ void QFactorMain::addClicked()
     ui->lstTotp->addItem(item);
     ui->txtName->clear();
     ui->txtKey->clear();
+    refreshTotps();
 }
 
 void QFactorMain::totpItemChanged(QListWidgetItem *item)
 {
     TOTP *totp = (TOTP*) item->data(Qt::UserRole).value<void*>();
-    qDebug("%s: %p", totp->key().toStdString().c_str(), totp);
 }
 
 void QFactorMain::refreshTimerTimeout()
@@ -61,15 +61,18 @@ void QFactorMain::refreshTimerTimeout()
     static qint64 time = 0;
     qint64 currentTime = QDateTime::currentMSecsSinceEpoch() / 1000;
     if ((currentTime % TOKEN_REFRESH_RATE) == 0 || ((currentTime - time) > TOKEN_REFRESH_RATE))
+    {
         time = currentTime;
-    qDebug("Last time: %u, Current Time: %u", time, currentTime);
-    refreshTotps();
+        refreshTotps();
+    }
 }
 
 void QFactorMain::refreshTotps()
 {
-    foreach (TOTP *t, totpList)
+    for (int i = 0; i < ui->lstTotp->count(); i++)
     {
-        qDebug("%s: %d", t->key().toStdString().c_str(), t->generate());
+        QListWidgetItem *item = ui->lstTotp->item(i);
+        TOTP *t = (TOTP*) item->data(Qt::UserRole).value<void*>();
+        item->setText(QString("%1 -- %2").arg(t->key(), QString::number(t->generate())));
     }
 }
