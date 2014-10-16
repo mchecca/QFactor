@@ -14,12 +14,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         QFactorMain.cpp \
-    TOTP.cpp
+    TOTP.cpp \
+    NewTOTPDialog.cpp
 
 HEADERS  += QFactorMain.h \
-    TOTP.h
+    TOTP.h \
+    NewTOTPDialog.h
 
-FORMS    += QFactorMain.ui
+FORMS    += QFactorMain.ui \
+    NewTOTPDialog.ui
 
 CONFIG += link_pkgconfig
 PKGCONFIG += liboath

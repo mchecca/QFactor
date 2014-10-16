@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QDateTime>
 #include <QClipboard>
+#include "NewTOTPDialog.h"
 #include "ui_QFactorMain.h"
 
 QFactorMain::QFactorMain(QWidget *parent) :
@@ -52,15 +53,9 @@ QFactorMain::~QFactorMain()
 
 void QFactorMain::addClicked()
 {
-    QString name = ui->txtName->text().trimmed();
-    QString key = ui->txtKey->text().trimmed();
-    if (name.length() == 0 || key.length() == 0) {
-        QMessageBox::information(this, "QFactor", "Name and key cannot be empty");
-        return;
-    }
-    addTOTP(name, key);
-    ui->txtName->clear();
-    ui->txtKey->clear();
+    QString name, key;
+    if (NewTOTPDialog(this, &name, &key).exec() == QDialog::Accepted)
+        addTOTP(name, key);
 }
 
 void QFactorMain::refreshTimerTimeout()
