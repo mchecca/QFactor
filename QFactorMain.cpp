@@ -140,8 +140,11 @@ void QFactorMain::loadSettings()
 {
     QPoint location = settings->value("ui/location", this->pos()).toPoint();
     QSize size = settings->value("ui/size", this->size()).toSize();
+    bool isMaximized = settings->value("ui/maximized", false).toBool();
     this->move(location);
     this->resize(size);
+    if (isMaximized)
+        this->showMaximized();
     int totp_count = settings->value("totp/count", QVariant(0)).toInt();
     for (int i = 0; i < totp_count; i++)
     {
@@ -158,6 +161,7 @@ void QFactorMain::saveSettings()
 {
     settings->setValue("ui/location", this->pos());
     settings->setValue("ui/size", this->size());
+    settings->setValue("ui/maximized", this->isMaximized());
     settings->setValue("totp/count", totpList.count());
     TOTP *t = NULL;
     for (int i = 0; i < totpList.count(); i++)
