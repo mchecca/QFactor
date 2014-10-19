@@ -23,7 +23,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
     ui->tblTotp->setColumnCount(4);
     ui->tblTotp->setHorizontalHeaderLabels(QStringList() <<
                                            "Account" <<
-                                           "Token" <<
+                                           "Key" <<
                                            "Website" <<
                                            "Actions");
 
@@ -94,7 +94,10 @@ void QFactorMain::totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *p
 
 void QFactorMain::totpDoubleClicked(QModelIndex index)
 {
-    TOTP *t = (TOTP*) index.data(Qt::UserRole).value<void*>();
+    TOTP *t = (TOTP*) ui->tblTotp->item(index.row(), 0)->data(Qt::UserRole).value<void*>();
+    /* copy to clipboard only if the key column was clicked */
+    if (index.column() != 1)
+        return;
     QClipboard *clipboard = QApplication::clipboard();
     if (!t || !clipboard)
         return;
