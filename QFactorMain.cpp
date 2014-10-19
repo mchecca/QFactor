@@ -127,9 +127,11 @@ void QFactorMain::addTOTP(QString name, QString key, QString website)
     int rowCount = ui->tblTotp->rowCount();
     ui->tblTotp->insertRow(rowCount);
     QTableWidgetItem *item = new QTableWidgetItem(totp->name());
+    QTableWidgetItem *keyItem = new QTableWidgetItem();
     item->setData(Qt::UserRole, qVariantFromValue((void *) totp));
+    keyItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     ui->tblTotp->setItem(rowCount, 0, item);
-    ui->tblTotp->setItem(rowCount, 1, new QTableWidgetItem());
+    ui->tblTotp->setItem(rowCount, 1, keyItem);
     ui->tblTotp->setItem(rowCount, 2, new QTableWidgetItem());
     refreshTotps();
     saveSettings();
