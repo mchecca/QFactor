@@ -7,6 +7,7 @@ NewTOTPDialog::NewTOTPDialog(QWidget *parent, QString *name, QString *key, QStri
     ui(new Ui::NewTOTPDialog)
 {
     ui->setupUi(this);
+    ui->txtName->setFocus();
     this->m_name = name;
     this->m_key = key;
     this->m_website = website;
