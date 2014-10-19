@@ -124,17 +124,27 @@ void QFactorMain::totpItemCellChanged(int row, int column)
     TOTP *t = getTotpFromItemRow(row);
     if (!t)
         return;
-    QString text = ui->tblTotp->item(row, column)->text();
+    QString text = ui->tblTotp->item(row, column)->text().trimmed();
+    QString fallback = QString();
+    bool edit = (text.length() > 0);
     switch (column) {
         case 0: /* account name */
-            t->setName(text);
+            if (edit)
+                t->setName(text);
+            else
+                fallback = t->name();
             break;
         case 2:
-            t->setWebsite(text);
+            if (edit)
+                t->setWebsite(text);
+            else
+                fallback = t->website();
             break;
         default:
             break;
     }
+    if (!edit)
+        ui->tblTotp->item(row, column)->setText(fallback);
 }
 
 void QFactorMain::deleteClicked()
