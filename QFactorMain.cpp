@@ -97,11 +97,14 @@ void QFactorMain::totpDoubleClicked(QModelIndex index)
     QClipboard *clipboard = QApplication::clipboard();
     if (!t || !clipboard)
         return;
-    QString token = QString::number(t->generate());
-    clipboard->setText(token);
+    int key = t->generate();
+    if (key == TOTP_INVALID_KEY)
+        return;
+    QString key_str = QString::number(t->generate());
+    clipboard->setText(key_str);
     clipboardTimer->stop();
     clipboardTimer->start();
-    ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(token));
+    ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(key_str));
 }
 
 void QFactorMain::deleteClicked()
