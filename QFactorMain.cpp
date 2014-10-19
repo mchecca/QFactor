@@ -3,6 +3,8 @@
 #include <QMessageBox>
 #include <QDateTime>
 #include <QClipboard>
+#include <QDesktopServices>
+#include <QUrl>
 #include "NewTOTPDialog.h"
 #include "ui_QFactorMain.h"
 
@@ -96,19 +98,25 @@ void QFactorMain::totpDoubleClicked(QModelIndex index)
 {
     TOTP *t = (TOTP*) ui->tblTotp->item(index.row(), 0)->data(Qt::UserRole).value<void*>();
     /* copy to clipboard only if the token column was clicked */
-    if (index.column() != 1)
-        return;
-    QClipboard *clipboard = QApplication::clipboard();
-    if (!t || !clipboard)
-        return;
-    int token = t->generateToken();
-    if (token == TOTP_INVALID_KEY)
-        return;
-    QString token_str = QString::number(t->generateToken());
-    clipboard->setText(token_str);
-    clipboardTimer->stop();
-    clipboardTimer->start();
-    ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(token_str));
+    if (index.column() == 1)
+    {
+        QClipboard *clipboard = QApplication::clipboard();
+        if (!t || !clipboard)
+            return;
+        int token = t->generateToken();
+        if (token == TOTP_INVALID_KEY)
+            return;
+        QString token_str = QString::number(t->generateToken());
+        clipboard->setText(token_str);
+        clipboardTimer->stop();
+        clipboardTimer->start();
+        ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(token_str));
+    }
+    /* if website was clicked, open in default web browser */
+    else if (index.column() == 2)
+    {
+        QDesktopServices::openUrl(QUrl(t->website()));
+    }
 }
 
 void QFactorMain::totpItemCellChanged(int row, int column)
