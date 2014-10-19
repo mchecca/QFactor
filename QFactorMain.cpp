@@ -19,6 +19,14 @@ QFactorMain::QFactorMain(QWidget *parent) :
     screenFrame.moveCenter(QDesktopWidget().availableGeometry().center());
     move(screenFrame.topLeft());
 
+    /* set up TOTP table */
+    ui->tblTotp->setColumnCount(4);
+    ui->tblTotp->setHorizontalHeaderLabels(QStringList() <<
+                                           "Account" <<
+                                           "Token" <<
+                                           "Website" <<
+                                           "Actions");
+
     loadSettings();
 
     refreshTimer = new QTimer(this);
@@ -31,8 +39,8 @@ QFactorMain::QFactorMain(QWidget *parent) :
     connect(ui->btnAdd, SIGNAL(clicked()), this, SLOT(addClicked()));
     connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshTimerTimeout()));
     connect(clipboardTimer, SIGNAL(timeout()), this, SLOT(clipboardTimerTimeout()));
-    connect(ui->lstTotp, SIGNAL(currentRowChanged(int)), this, SLOT(totpItemRowChanged(int)));
-    connect(ui->lstTotp, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(totpDoubleClicked(QModelIndex)));
+    connect(ui->tblTotp, SIGNAL(cellChanged(int,int)), this, SLOT(totpItemCellChanged(int, int)));
+    connect(ui->tblTotp, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(totpDoubleClicked(QModelIndex)));
     connect(ui->btnDelete, SIGNAL(clicked()), this, SLOT(deleteClicked()));
 
     refreshTimerTimeout();
@@ -77,9 +85,9 @@ void QFactorMain::clipboardTimerTimeout()
     clipboardTimer->stop();
 }
 
-void QFactorMain::totpItemRowChanged(int row)
+void QFactorMain::totpItemCellChanged(int row, int column)
 {
-    ui->btnDelete->setEnabled(ui->lstTotp->item(row) ? true : false);
+    ui->btnDelete->setEnabled(ui->tblTotp->item(row, column) ? true : false);
 }
 
 void QFactorMain::totpDoubleClicked(QModelIndex index)
@@ -97,13 +105,13 @@ void QFactorMain::totpDoubleClicked(QModelIndex index)
 
 void QFactorMain::deleteClicked()
 {
-    QListWidgetItem *item = ui->lstTotp->currentItem();
+    QTableWidgetItem *item = ui->tblTotp->item(ui->tblTotp->currentRow(), 0);
     if (!item)
         return;
     TOTP *t = (TOTP*) item->data(Qt::UserRole).value<void*>();
     totpList.removeOne(t);
-    ui->lstTotp->takeItem(ui->lstTotp->currentRow());
-    ui->lstTotp->raise();
+    ui->tblTotp->removeRow(ui->tblTotp->currentRow());
+    ui->tblTotp->raise();
     refreshTotps();
     saveSettings();
 }
@@ -112,22 +120,30 @@ void QFactorMain::addTOTP(QString name, QString key)
 {
     TOTP *totp = new TOTP(name, key);
     totpList.append(totp);
-    QListWidgetItem *item = new QListWidgetItem(totp->name());
+    int rowCount = ui->tblTotp->rowCount();
+    ui->tblTotp->insertRow(rowCount);
+    QTableWidgetItem *item = new QTableWidgetItem(totp->name());
     item->setData(Qt::UserRole, qVariantFromValue((void *) totp));
-    ui->lstTotp->addItem(item);
+    ui->tblTotp->setItem(rowCount, 0, item);
+    ui->tblTotp->setItem(rowCount, 1, new QTableWidgetItem());
+    ui->tblTotp->setItem(rowCount, 2, new QTableWidgetItem());
     refreshTotps();
     saveSettings();
 }
 
 void QFactorMain::refreshTotps()
 {
-    for (int i = 0; i < ui->lstTotp->count(); i++)
+    for (int i = 0; i < ui->tblTotp->rowCount(); i++)
     {
-        QListWidgetItem *item = ui->lstTotp->item(i);
-        TOTP *t = (TOTP*) item->data(Qt::UserRole).value<void*>();
+        QTableWidgetItem *account = ui->tblTotp->item(i, 0);
+        QTableWidgetItem *key_item = ui->tblTotp->item(i, 1);
+        QTableWidgetItem *website = ui->tblTotp->item(i, 2);
+        TOTP *t = (TOTP*) account->data(Qt::UserRole).value<void*>();
         int key = t->generate();
-        QString text = QString("%1 -- %2").arg(t->name(), (key == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(key));
-        item->setText(text);
+        QString key_str = QString((key == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(key));
+        account->setText(t->name());
+        key_item->setText(key_str);
+        website->setText(QString("WEB SITE"));
     }
 }
 

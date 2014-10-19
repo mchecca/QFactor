@@ -26,7 +26,7 @@ public slots:
     void addClicked();
     void refreshTimerTimeout();
     void clipboardTimerTimeout();
-    void totpItemRowChanged(int row);
+    void totpItemCellChanged(int row, int column);
     void totpDoubleClicked(QModelIndex index);
     void deleteClicked();
 
