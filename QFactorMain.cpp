@@ -41,6 +41,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
     connect(clipboardTimer, SIGNAL(timeout()), this, SLOT(clipboardTimerTimeout()));
     connect(ui->tblTotp, SIGNAL(currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)), this, SLOT(totpItemChanged(QTableWidgetItem*,QTableWidgetItem*)));
     connect(ui->tblTotp, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(totpDoubleClicked(QModelIndex)));
+    connect(ui->tblTotp, SIGNAL(cellChanged(int,int)), this, SLOT(totpItemCellChanged(int,int)));
     connect(ui->btnDelete, SIGNAL(clicked()), this, SLOT(deleteClicked()));
 
     refreshTimerTimeout();
@@ -109,6 +110,24 @@ void QFactorMain::totpDoubleClicked(QModelIndex index)
     clipboardTimer->stop();
     clipboardTimer->start();
     ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(key_str));
+}
+
+void QFactorMain::totpItemCellChanged(int row, int column)
+{
+    TOTP *t = (TOTP*) ui->tblTotp->item(row, 0)->data(Qt::UserRole).value<void*>();
+    if (!t)
+        return;
+    QString text = ui->tblTotp->item(row, column)->text();
+    switch (column) {
+        case 0: /* account name */
+            t->setName(text);
+            break;
+        case 2:
+            t->setWebsite(text);
+            break;
+        default:
+            break;
+    }
 }
 
 void QFactorMain::deleteClicked()

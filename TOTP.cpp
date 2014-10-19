@@ -24,6 +24,16 @@ QString TOTP::website()
     return this->m_website;
 }
 
+void TOTP::setName(QString name)
+{
+    this->m_name = name;
+}
+
+void TOTP::setWebsite(QString website)
+{
+    this->m_website = website;
+}
+
 int TOTP::generate()
 {
     if (oath_init() != OATH_OK)

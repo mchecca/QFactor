@@ -15,6 +15,8 @@ public:
     QString name();
     QString key();
     QString website();
+    void setName(QString name);
+    void setWebsite(QString website);
     int generate();
 
 private:
