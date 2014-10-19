@@ -20,12 +20,11 @@ QFactorMain::QFactorMain(QWidget *parent) :
     move(screenFrame.topLeft());
 
     /* set up TOTP table */
-    ui->tblTotp->setColumnCount(4);
+    ui->tblTotp->setColumnCount(3);
     ui->tblTotp->setHorizontalHeaderLabels(QStringList() <<
                                            "Account" <<
                                            "Token" <<
-                                           "Website" <<
-                                           "Actions");
+                                           "Website");
 
     loadSettings();
 
@@ -174,6 +173,7 @@ void QFactorMain::refreshTotps()
         token_item->setText(token_str);
         website->setText(t->website());
     }
+    ui->tblTotp->resizeColumnsToContents();
 }
 
 void QFactorMain::loadSettings()
