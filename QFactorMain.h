@@ -2,8 +2,8 @@
 #define QFACTORMAIN_H
 
 #include <QMainWindow>
-#include <QList>
-#include <QListWidgetItem>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 #include <QSettings>
 #include <QTimer>
 #include "TOTP.h"
@@ -26,7 +26,7 @@ public slots:
     void addClicked();
     void refreshTimerTimeout();
     void clipboardTimerTimeout();
-    void totpItemCellChanged(int row, int column);
+    void totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
     void totpDoubleClicked(QModelIndex index);
     void deleteClicked();
 
@@ -37,7 +37,7 @@ private:
     QTimer *clipboardTimer;
     QSettings *settings;
 
-    void addTOTP(QString name, QString key);
+    void addTOTP(QString name, QString key, QString website);
     void refreshTotps();
     void loadSettings();
     void saveSettings();

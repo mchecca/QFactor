@@ -2,10 +2,11 @@
 #include "liboath/oath.h"
 #include <time.h>
 
-TOTP::TOTP(QString name, QString key)
+TOTP::TOTP(QString name, QString key, QString website)
 {
     this->m_name = name;
     this->m_key = key;
+    this->m_website = website;
 }
 
 QString TOTP::name()
@@ -16,6 +17,11 @@ QString TOTP::name()
 QString TOTP::key()
 {
     return this->m_key;
+}
+
+QString TOTP::website()
+{
+    return this->m_website;
 }
 
 int TOTP::generate()

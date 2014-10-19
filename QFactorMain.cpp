@@ -39,7 +39,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
     connect(ui->btnAdd, SIGNAL(clicked()), this, SLOT(addClicked()));
     connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshTimerTimeout()));
     connect(clipboardTimer, SIGNAL(timeout()), this, SLOT(clipboardTimerTimeout()));
-    connect(ui->tblTotp, SIGNAL(cellChanged(int,int)), this, SLOT(totpItemCellChanged(int, int)));
+    connect(ui->tblTotp, SIGNAL(currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)), this, SLOT(totpItemChanged(QTableWidgetItem*,QTableWidgetItem*)));
     connect(ui->tblTotp, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(totpDoubleClicked(QModelIndex)));
     connect(ui->btnDelete, SIGNAL(clicked()), this, SLOT(deleteClicked()));
 
@@ -61,9 +61,9 @@ QFactorMain::~QFactorMain()
 
 void QFactorMain::addClicked()
 {
-    QString name, key;
-    if (NewTOTPDialog(this, &name, &key).exec() == QDialog::Accepted)
-        addTOTP(name, key);
+    QString name, key, website;
+    if (NewTOTPDialog(this, &name, &key, &website).exec() == QDialog::Accepted)
+        addTOTP(name, key, website);
 }
 
 void QFactorMain::refreshTimerTimeout()
@@ -85,9 +85,10 @@ void QFactorMain::clipboardTimerTimeout()
     clipboardTimer->stop();
 }
 
-void QFactorMain::totpItemCellChanged(int row, int column)
+void QFactorMain::totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
 {
-    ui->btnDelete->setEnabled(ui->tblTotp->item(row, column) ? true : false);
+    bool enabled = (current && (ui->tblTotp->rowCount() > 0)  ? true : false);
+    ui->btnDelete->setEnabled(enabled);
 }
 
 void QFactorMain::totpDoubleClicked(QModelIndex index)
@@ -116,9 +117,9 @@ void QFactorMain::deleteClicked()
     saveSettings();
 }
 
-void QFactorMain::addTOTP(QString name, QString key)
+void QFactorMain::addTOTP(QString name, QString key, QString website)
 {
-    TOTP *totp = new TOTP(name, key);
+    TOTP *totp = new TOTP(name, key, website);
     totpList.append(totp);
     int rowCount = ui->tblTotp->rowCount();
     ui->tblTotp->insertRow(rowCount);
@@ -143,7 +144,7 @@ void QFactorMain::refreshTotps()
         QString key_str = QString((key == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(key));
         account->setText(t->name());
         key_item->setText(key_str);
-        website->setText(QString("WEB SITE"));
+        website->setText(t->website());
     }
 }
 
@@ -161,9 +162,11 @@ void QFactorMain::loadSettings()
     {
         QString nameKey = QString("totp/%1/name").arg(QString::number(i));
         QString keyKey = QString("totp/%1/key").arg(QString::number(i));
+        QString websiteKey = QString("totp/%1/website").arg(QString::number(i));
         QString name = settings->value(nameKey, QString()).toString();
         QString key = settings->value(keyKey, QString()).toString();
-        addTOTP(name, key);
+        QString website = settings->value(websiteKey, QString()).toString();
+        addTOTP(name, key, website);
     }
     refreshTotps();
 }
@@ -180,7 +183,9 @@ void QFactorMain::saveSettings()
         t = totpList.at(i);
         QString nameKey = QString("totp/%1/name").arg(QString::number(i));
         QString keyKey = QString("totp/%1/key").arg(QString::number(i));
+        QString websiteKey = QString("totp/%1/website").arg(QString::number(i));
         settings->setValue(nameKey, t->name());
         settings->setValue(keyKey, t->key());
+        settings->setValue(websiteKey, t->website());
     }
 }

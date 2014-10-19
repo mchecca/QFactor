@@ -13,7 +13,7 @@ class NewTOTPDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit NewTOTPDialog(QWidget *parent, QString *name, QString *key);
+    explicit NewTOTPDialog(QWidget *parent, QString *name, QString *key, QString *website);
     ~NewTOTPDialog();
 
 public slots:
@@ -24,6 +24,7 @@ private:
 
     QString *m_name;
     QString *m_key;
+    QString *m_website;
 };
 
 #endif // NEWTOTPDIALOG_H

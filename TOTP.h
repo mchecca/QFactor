@@ -11,14 +11,16 @@ class TOTP
 {
 
 public:
-    TOTP(QString name, QString key);
+    TOTP(QString name, QString key, QString website);
     QString name();
     QString key();
+    QString website();
     int generate();
 
 private:
     QString m_name;
     QString m_key;
+    QString m_website;
 };
 
 #endif // TOTP_H
