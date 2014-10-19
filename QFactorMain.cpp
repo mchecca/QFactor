@@ -96,7 +96,7 @@ void QFactorMain::totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *p
 
 void QFactorMain::totpDoubleClicked(QModelIndex index)
 {
-    TOTP *t = (TOTP*) ui->tblTotp->item(index.row(), 0)->data(Qt::UserRole).value<void*>();
+    TOTP *t = getTotpFromItemRow(index.row());
     /* copy to clipboard only if the token column was clicked */
     if (index.column() == 1)
     {
@@ -121,7 +121,7 @@ void QFactorMain::totpDoubleClicked(QModelIndex index)
 
 void QFactorMain::totpItemCellChanged(int row, int column)
 {
-    TOTP *t = (TOTP*) ui->tblTotp->item(row, 0)->data(Qt::UserRole).value<void*>();
+    TOTP *t = getTotpFromItemRow(row);
     if (!t)
         return;
     QString text = ui->tblTotp->item(row, column)->text();
@@ -139,10 +139,7 @@ void QFactorMain::totpItemCellChanged(int row, int column)
 
 void QFactorMain::deleteClicked()
 {
-    QTableWidgetItem *item = ui->tblTotp->item(ui->tblTotp->currentRow(), 0);
-    if (!item)
-        return;
-    TOTP *t = (TOTP*) item->data(Qt::UserRole).value<void*>();
+    TOTP *t = getTotpFromItemRow(ui->tblTotp->currentRow());
     totpList.removeOne(t);
     ui->tblTotp->removeRow(ui->tblTotp->currentRow());
     ui->tblTotp->raise();
@@ -174,7 +171,7 @@ void QFactorMain::refreshTotps()
         QTableWidgetItem *account = ui->tblTotp->item(i, 0);
         QTableWidgetItem *token_item = ui->tblTotp->item(i, 1);
         QTableWidgetItem *website = ui->tblTotp->item(i, 2);
-        TOTP *t = (TOTP*) account->data(Qt::UserRole).value<void*>();
+        TOTP *t = getTotpFromItemRow(account->row());
         int token = t->generateToken();
         QString token_str = QString((token == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(token));
         account->setText(t->name());
@@ -213,10 +210,9 @@ void QFactorMain::saveSettings()
     settings->setValue("ui/size", this->size());
     settings->setValue("ui/maximized", this->isMaximized());
     settings->setValue("totp/count", totpList.count());
-    TOTP *t = NULL;
     for (int i = 0; i < totpList.count(); i++)
     {
-        t = totpList.at(i);
+        TOTP *t = totpList.at(i);
         QString nameKey = QString("totp/%1/name").arg(QString::number(i));
         QString keyKey = QString("totp/%1/key").arg(QString::number(i));
         QString websiteKey = QString("totp/%1/website").arg(QString::number(i));
@@ -224,4 +220,9 @@ void QFactorMain::saveSettings()
         settings->setValue(keyKey, t->key());
         settings->setValue(websiteKey, t->website());
     }
+}
+
+TOTP *QFactorMain::getTotpFromItemRow(int row)
+{
+    return static_cast<TOTP*>(ui->tblTotp->item(row, 0)->data(Qt::UserRole).value<void*>());
 }

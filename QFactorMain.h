@@ -42,6 +42,7 @@ private:
     void refreshTotps();
     void loadSettings();
     void saveSettings();
+    TOTP *getTotpFromItemRow(int row);
 };
 
 #endif // QFACTORMAIN_H
