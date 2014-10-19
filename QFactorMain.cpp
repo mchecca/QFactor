@@ -87,6 +87,7 @@ void QFactorMain::clipboardTimerTimeout()
 
 void QFactorMain::totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
 {
+    Q_UNUSED(previous);
     bool enabled = (current && (ui->tblTotp->rowCount() > 0)  ? true : false);
     ui->btnDelete->setEnabled(enabled);
 }
