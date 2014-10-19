@@ -22,11 +22,12 @@ QFactorMain::QFactorMain(QWidget *parent) :
     move(screenFrame.topLeft());
 
     /* set up TOTP table */
-    ui->tblTotp->setColumnCount(3);
+    ui->tblTotp->setColumnCount(4);
     ui->tblTotp->setHorizontalHeaderLabels(QStringList() <<
                                            "Account" <<
                                            "Token" <<
-                                           "Website");
+                                           "Website" <<
+                                           "Action");
 
     loadSettings();
 
@@ -113,7 +114,7 @@ void QFactorMain::totpDoubleClicked(QModelIndex index)
         ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(token_str));
     }
     /* if website was clicked, open in default web browser */
-    else if (index.column() == 2)
+    else if (index.column() == 3)
     {
         QDesktopServices::openUrl(QUrl(t->website()));
     }
@@ -165,11 +166,14 @@ void QFactorMain::addTOTP(QString name, QString key, QString website)
     ui->tblTotp->insertRow(rowCount);
     QTableWidgetItem *item = new QTableWidgetItem(totp->name());
     QTableWidgetItem *tokenItem = new QTableWidgetItem();
+    QTableWidgetItem *actionItem = new QTableWidgetItem();
     item->setData(Qt::UserRole, qVariantFromValue((void *) totp));
-    tokenItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    tokenItem->setFlags(tokenItem->flags() ^ Qt::ItemIsEditable);
+    actionItem->setFlags(actionItem->flags() ^ Qt::ItemIsEditable);
     ui->tblTotp->setItem(rowCount, 0, item);
     ui->tblTotp->setItem(rowCount, 1, tokenItem);
     ui->tblTotp->setItem(rowCount, 2, new QTableWidgetItem());
+    ui->tblTotp->setItem(rowCount, 3, actionItem);
     refreshTotps();
     saveSettings();
 }
@@ -181,12 +185,14 @@ void QFactorMain::refreshTotps()
         QTableWidgetItem *account = ui->tblTotp->item(i, 0);
         QTableWidgetItem *token_item = ui->tblTotp->item(i, 1);
         QTableWidgetItem *website = ui->tblTotp->item(i, 2);
+        QTableWidgetItem *action = ui->tblTotp->item(i, 3);
         TOTP *t = getTotpFromItemRow(account->row());
         int token = t->generateToken();
         QString token_str = QString((token == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(token));
         account->setText(t->name());
         token_item->setText(token_str);
         website->setText(t->website());
+        action->setText("Open");
     }
     ui->tblTotp->resizeColumnsToContents();
 }
