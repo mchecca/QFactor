@@ -23,7 +23,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
     ui->tblTotp->setColumnCount(4);
     ui->tblTotp->setHorizontalHeaderLabels(QStringList() <<
                                            "Account" <<
-                                           "Key" <<
+                                           "Token" <<
                                            "Website" <<
                                            "Actions");
 
@@ -96,20 +96,20 @@ void QFactorMain::totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *p
 void QFactorMain::totpDoubleClicked(QModelIndex index)
 {
     TOTP *t = (TOTP*) ui->tblTotp->item(index.row(), 0)->data(Qt::UserRole).value<void*>();
-    /* copy to clipboard only if the key column was clicked */
+    /* copy to clipboard only if the token column was clicked */
     if (index.column() != 1)
         return;
     QClipboard *clipboard = QApplication::clipboard();
     if (!t || !clipboard)
         return;
-    int key = t->generate();
-    if (key == TOTP_INVALID_KEY)
+    int token = t->generateToken();
+    if (token == TOTP_INVALID_KEY)
         return;
-    QString key_str = QString::number(t->generate());
-    clipboard->setText(key_str);
+    QString token_str = QString::number(t->generateToken());
+    clipboard->setText(token_str);
     clipboardTimer->stop();
     clipboardTimer->start();
-    ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(key_str));
+    ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(token_str));
 }
 
 void QFactorMain::totpItemCellChanged(int row, int column)
@@ -150,11 +150,11 @@ void QFactorMain::addTOTP(QString name, QString key, QString website)
     int rowCount = ui->tblTotp->rowCount();
     ui->tblTotp->insertRow(rowCount);
     QTableWidgetItem *item = new QTableWidgetItem(totp->name());
-    QTableWidgetItem *keyItem = new QTableWidgetItem();
+    QTableWidgetItem *tokenItem = new QTableWidgetItem();
     item->setData(Qt::UserRole, qVariantFromValue((void *) totp));
-    keyItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    tokenItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     ui->tblTotp->setItem(rowCount, 0, item);
-    ui->tblTotp->setItem(rowCount, 1, keyItem);
+    ui->tblTotp->setItem(rowCount, 1, tokenItem);
     ui->tblTotp->setItem(rowCount, 2, new QTableWidgetItem());
     refreshTotps();
     saveSettings();
@@ -165,13 +165,13 @@ void QFactorMain::refreshTotps()
     for (int i = 0; i < ui->tblTotp->rowCount(); i++)
     {
         QTableWidgetItem *account = ui->tblTotp->item(i, 0);
-        QTableWidgetItem *key_item = ui->tblTotp->item(i, 1);
+        QTableWidgetItem *token_item = ui->tblTotp->item(i, 1);
         QTableWidgetItem *website = ui->tblTotp->item(i, 2);
         TOTP *t = (TOTP*) account->data(Qt::UserRole).value<void*>();
-        int key = t->generate();
-        QString key_str = QString((key == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(key));
+        int token = t->generateToken();
+        QString token_str = QString((token == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(token));
         account->setText(t->name());
-        key_item->setText(key_str);
+        token_item->setText(token_str);
         website->setText(t->website());
     }
 }

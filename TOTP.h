@@ -17,7 +17,7 @@ public:
     QString website();
     void setName(QString name);
     void setWebsite(QString website);
-    int generate();
+    int generateToken();
 
 private:
     QString m_name;

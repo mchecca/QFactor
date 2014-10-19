@@ -34,7 +34,7 @@ void TOTP::setWebsite(QString website)
     this->m_website = website;
 }
 
-int TOTP::generate()
+int TOTP::generateToken()
 {
     if (oath_init() != OATH_OK)
         return -1;
