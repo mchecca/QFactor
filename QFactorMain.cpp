@@ -75,6 +75,7 @@ void QFactorMain::refreshTimerTimeout()
     qint64 currentTime = QDateTime::currentMSecsSinceEpoch() / 1000;
     int untilRefresh = TOKEN_REFRESH_RATE - (currentTime % TOKEN_REFRESH_RATE);
     ui->lblRefresh->setText(QString("Seconds until refresh: %1").arg(QString::number(untilRefresh)));
+    ui->pbSeconds->setValue(TOKEN_REFRESH_RATE - untilRefresh);
     if ((currentTime % TOKEN_REFRESH_RATE) == 0 || ((currentTime - time) > TOKEN_REFRESH_RATE))
     {
         time = currentTime;
