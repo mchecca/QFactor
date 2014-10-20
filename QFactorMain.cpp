@@ -146,6 +146,8 @@ void QFactorMain::totpItemCellChanged(int row, int column)
     }
     if (!edit)
         ui->tblTotp->item(row, column)->setText(fallback);
+    else
+        refreshTotps();
 }
 
 void QFactorMain::deleteClicked()
