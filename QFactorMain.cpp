@@ -190,6 +190,9 @@ void QFactorMain::refreshTotps()
         QTableWidgetItem *website = ui->tblTotp->item(i, 2);
         QTableWidgetItem *action = ui->tblTotp->item(i, 3);
         TOTP *t = getTotpFromItemRow(account->row());
+        /* TODO: Figure out why this sometimes happens */
+        if (!(account && token_item && website && action))
+            return;
         int token = t->generateToken();
         QString token_str = QString((token == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(token));
         account->setText(t->name());
