@@ -25,7 +25,7 @@ void NewTOTPDialog::accept()
     QString website_str = ui->txtWebsite->text().trimmed();
     if (name_str.length() == 0 || key_str.length() == 0)
     {
-        QMessageBox::information(this, "QFactor", "Name and key cannot be empty");
+        QMessageBox::information(this, "QFactor", tr("Name and key cannot be empty"));
     }
     else
     {

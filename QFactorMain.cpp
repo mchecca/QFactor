@@ -24,10 +24,10 @@ QFactorMain::QFactorMain(QWidget *parent) :
     /* set up TOTP table */
     ui->tblTotp->setColumnCount(4);
     ui->tblTotp->setHorizontalHeaderLabels(QStringList() <<
-                                           "Account" <<
-                                           "Token" <<
-                                           "Website" <<
-                                           "Action");
+                                           tr("Account") <<
+                                           tr("Token") <<
+                                           tr("Website") <<
+                                           tr("Action"));
 
     loadSettings();
 
@@ -74,7 +74,7 @@ void QFactorMain::refreshTimerTimeout()
     static qint64 time = 0;
     qint64 currentTime = QDateTime::currentMSecsSinceEpoch() / 1000;
     int untilRefresh = TOKEN_REFRESH_RATE - (currentTime % TOKEN_REFRESH_RATE);
-    ui->lblRefresh->setText(QString("Seconds until refresh: %1").arg(QString::number(untilRefresh)));
+    ui->lblRefresh->setText(tr("Seconds until refresh: %1").arg(QString::number(untilRefresh)));
     ui->pbSeconds->setValue(TOKEN_REFRESH_RATE - untilRefresh);
     if ((currentTime % TOKEN_REFRESH_RATE) == 0 || ((currentTime - time) > TOKEN_REFRESH_RATE))
     {
@@ -112,7 +112,7 @@ void QFactorMain::totpDoubleClicked(QModelIndex index)
         clipboard->setText(token_str);
         clipboardTimer->stop();
         clipboardTimer->start();
-        ui->lblStatus->setText(QString("Copied %1 to clipboard").arg(token_str));
+        ui->lblStatus->setText(tr("Copied %1 to clipboard").arg(token_str));
     }
     /* if website was clicked, open in default web browser */
     else if (index.column() == 3)
@@ -194,11 +194,11 @@ void QFactorMain::refreshTotps()
         if (!(account && token_item && website && action))
             return;
         int token = t->generateToken();
-        QString token_str = QString((token == TOTP_INVALID_KEY) ? "Invalid key" : QString::number(token));
+        QString token_str = QString((token == TOTP_INVALID_KEY) ? tr("Invalid key") : QString::number(token));
         account->setText(t->name());
         token_item->setText(token_str);
         website->setText(t->website());
-        action->setText("Open");
+        action->setText(tr("Open"));
     }
     ui->tblTotp->resizeColumnsToContents();
 }

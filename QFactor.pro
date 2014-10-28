@@ -26,3 +26,5 @@ FORMS    += QFactorMain.ui \
 
 CONFIG += link_pkgconfig
 PKGCONFIG += liboath
+
+TRANSLATIONS += locale/en_US.ts
