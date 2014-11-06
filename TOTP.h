@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 
+#define TOTP_SUCCESS 0
 #define TOTP_ERROR -1
 #define TOTP_INVALID_KEY -2
 
@@ -17,7 +18,7 @@ public:
     QString website();
     void setName(QString name);
     void setWebsite(QString website);
-    int generateToken();
+    QString generateToken(int *result);
 
 private:
     QString m_name;

@@ -105,14 +105,14 @@ void QFactorMain::totpDoubleClicked(QModelIndex index)
         QClipboard *clipboard = QApplication::clipboard();
         if (!t || !clipboard)
             return;
-        int token = t->generateToken();
-        if (token == TOTP_INVALID_KEY)
+        int ret;
+        QString token = t->generateToken(&ret);
+        if (ret != TOTP_SUCCESS)
             return;
-        QString token_str = QString::number(t->generateToken());
-        clipboard->setText(token_str);
+        clipboard->setText(token);
         clipboardTimer->stop();
         clipboardTimer->start();
-        ui->lblStatus->setText(tr("Copied %1 to clipboard").arg(token_str));
+        ui->lblStatus->setText(tr("Copied %1 to clipboard").arg(token));
     }
     /* if website was clicked, open in default web browser */
     else if (index.column() == 3)
@@ -193,8 +193,9 @@ void QFactorMain::refreshTotps()
         /* TODO: Figure out why this sometimes happens */
         if (!(account && token_item && website && action))
             return;
-        int token = t->generateToken();
-        QString token_str = QString((token == TOTP_INVALID_KEY) ? tr("Invalid key") : QString::number(token));
+        int ret;
+        QString token = t->generateToken(&ret);
+        QString token_str = QString((ret == TOTP_INVALID_KEY) ? tr("Invalid key") : token);
         account->setText(t->name());
         token_item->setText(token_str);
         website->setText(t->website());
