@@ -20,16 +20,6 @@
    <string>Add New TOTP Key</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="lblName">
      <property name="text">
@@ -43,6 +33,26 @@
    <item row="2" column="1">
     <widget class="QLineEdit" name="txtKey"/>
    </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="lblWebsite">
+     <property name="text">
+      <string>Website</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="txtWebsite"/>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="0">
     <widget class="QLabel" name="lblKey">
      <property name="text">
@@ -50,18 +60,28 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="txtWebsite"/>
-   </item>
    <item row="3" column="0">
-    <widget class="QLabel" name="lblWebsite">
+    <widget class="QLabel" name="lblTokenLength">
      <property name="text">
-      <string>Website</string>
+      <string>Token Length</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="txtTokenLength">
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>txtName</tabstop>
+  <tabstop>txtKey</tabstop>
+  <tabstop>txtTokenLength</tabstop>
+  <tabstop>txtWebsite</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

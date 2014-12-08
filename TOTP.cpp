@@ -2,10 +2,11 @@
 #include "liboath/oath.h"
 #include <time.h>
 
-TOTP::TOTP(QString name, QString key, QString website)
+TOTP::TOTP(QString name, QString key, int tokenLength, QString website)
 {
     this->m_name = name;
     this->m_key = key;
+    this->m_tokenLength = tokenLength;
     this->m_website = website;
 }
 
@@ -17,6 +18,11 @@ QString TOTP::name()
 QString TOTP::key()
 {
     return this->m_key;
+}
+
+int TOTP::tokenLength()
+{
+    return this->m_tokenLength;
 }
 
 QString TOTP::website()
@@ -57,7 +63,7 @@ QString TOTP::generateToken(int *result)
     {
         time_t time_now = time(0);
         char *output = (char *) calloc (sizeof(char*), 7);
-        if (oath_totp_generate(secret, secret_len, time_now, 30, 0, 6, output) != OATH_OK)
+        if (oath_totp_generate(secret, secret_len, time_now, 30, 0, this->m_tokenLength, output) != OATH_OK)
         {
             tmp_result = TOTP_ERROR;
         }

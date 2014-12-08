@@ -65,8 +65,9 @@ QFactorMain::~QFactorMain()
 void QFactorMain::addClicked()
 {
     QString name, key, website;
-    if (NewTOTPDialog(this, &name, &key, &website).exec() == QDialog::Accepted)
-        addTOTP(name, key, website);
+    int tokenLength;
+    if (NewTOTPDialog(this, &name, &key, &tokenLength, &website).exec() == QDialog::Accepted)
+        addTOTP(name, key, tokenLength, website);
 }
 
 void QFactorMain::refreshTimerTimeout()
@@ -161,9 +162,9 @@ void QFactorMain::deleteClicked()
     saveSettings();
 }
 
-void QFactorMain::addTOTP(QString name, QString key, QString website)
+void QFactorMain::addTOTP(QString name, QString key, int tokenLength, QString website, bool save)
 {
-    TOTP *totp = new TOTP(name, key, website);
+    TOTP *totp = new TOTP(name, key, tokenLength, website);
     totpList.append(totp);
     int rowCount = ui->tblTotp->rowCount();
     ui->tblTotp->insertRow(rowCount);
@@ -178,7 +179,8 @@ void QFactorMain::addTOTP(QString name, QString key, QString website)
     ui->tblTotp->setItem(rowCount, 2, new QTableWidgetItem());
     ui->tblTotp->setItem(rowCount, 3, actionItem);
     refreshTotps();
-    saveSettings();
+    if (save)
+        saveSettings();
 }
 
 void QFactorMain::refreshTotps()
@@ -218,17 +220,20 @@ void QFactorMain::loadSettings()
     {
         QString nameKey = QString("totp/%1/name").arg(QString::number(i));
         QString keyKey = QString("totp/%1/key").arg(QString::number(i));
+        QString tokenLengthKey = QString("totp/%1/tokenlength").arg(QString::number(i));
         QString websiteKey = QString("totp/%1/website").arg(QString::number(i));
         QString name = settings->value(nameKey, QString()).toString();
         QString key = settings->value(keyKey, QString()).toString();
+        int tokenLength = settings->value(tokenLengthKey, DEFAULT_TOTP_KEY_LEN).toInt();
         QString website = settings->value(websiteKey, QString()).toString();
-        addTOTP(name, key, website);
+        addTOTP(name, key, tokenLength, website, false);
     }
     refreshTotps();
 }
 
 void QFactorMain::saveSettings()
 {
+    settings->clear();
     settings->setValue("ui/location", this->pos());
     settings->setValue("ui/size", this->size());
     settings->setValue("ui/maximized", this->isMaximized());
@@ -238,9 +243,11 @@ void QFactorMain::saveSettings()
         TOTP *t = totpList.at(i);
         QString nameKey = QString("totp/%1/name").arg(QString::number(i));
         QString keyKey = QString("totp/%1/key").arg(QString::number(i));
+        QString tokenLengthKey = QString("totp/%1/tokenlength").arg(QString::number(i));
         QString websiteKey = QString("totp/%1/website").arg(QString::number(i));
         settings->setValue(nameKey, t->name());
         settings->setValue(keyKey, t->key());
+        settings->setValue(tokenLengthKey, t->tokenLength());
         settings->setValue(websiteKey, t->website());
     }
 }

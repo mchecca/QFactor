@@ -38,7 +38,7 @@ private:
     QTimer *clipboardTimer;
     QSettings *settings;
 
-    void addTOTP(QString name, QString key, QString website);
+    void addTOTP(QString name, QString key, int tokenLength, QString website, bool save = true);
     void refreshTotps();
     void loadSettings();
     void saveSettings();
