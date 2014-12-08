@@ -32,9 +32,9 @@ void NewTOTPDialog::accept()
     {
         QMessageBox::information(this, "QFactor", tr("Name and key cannot be empty"));
     }
-    if (!ok)
+    if (!ok || tokenLength <= 0)
     {
-        QMessageBox::information(this, "QFactor", tr("Token length must be a number"));
+        QMessageBox::information(this, "QFactor", tr("Token length must be a number greater than 0"));
     }
     else
     {
