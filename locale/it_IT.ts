@@ -9,24 +9,34 @@
         <translation>Aggiungere Nuovo TOTP Chiave</translation>
     </message>
     <message>
-        <location filename="../NewTOTPDialog.ui" line="36"/>
+        <location filename="../NewTOTPDialog.ui" line="26"/>
         <source>Name</source>
         <translation>Nome</translation>
     </message>
     <message>
-        <location filename="../NewTOTPDialog.ui" line="49"/>
+        <location filename="../NewTOTPDialog.ui" line="59"/>
         <source>Key</source>
         <translation>Chiave</translation>
     </message>
     <message>
-        <location filename="../NewTOTPDialog.ui" line="59"/>
+        <location filename="../NewTOTPDialog.ui" line="66"/>
+        <source>Token Length</source>
+        <translation>Lunghezza del Gettone</translation>
+    </message>
+    <message>
+        <location filename="../NewTOTPDialog.ui" line="39"/>
         <source>Website</source>
         <translation>Sito web</translation>
     </message>
     <message>
-        <location filename="../NewTOTPDialog.cpp" line="28"/>
+        <location filename="../NewTOTPDialog.cpp" line="33"/>
         <source>Name and key cannot be empty</source>
         <translation>Nome e la chiave non può essere vuoto</translation>
+    </message>
+    <message>
+        <location filename="../NewTOTPDialog.cpp" line="37"/>
+        <source>Token length must be a number greater than 0</source>
+        <translation>lunghezza del gettone deve essere maggiore di 0</translation>
     </message>
 </context>
 <context>
@@ -78,22 +88,22 @@ Secondi fino a quando aggiornamento: 0</translation>
         <translation>Azione</translation>
     </message>
     <message>
-        <location filename="../QFactorMain.cpp" line="77"/>
+        <location filename="../QFactorMain.cpp" line="78"/>
         <source>Seconds until refresh: %1</source>
         <translation>Secondi fino a quando aggiornamento:%1</translation>
     </message>
     <message>
-        <location filename="../QFactorMain.cpp" line="115"/>
+        <location filename="../QFactorMain.cpp" line="116"/>
         <source>Copied %1 to clipboard</source>
         <translation>Copiato %1 negli appunti</translation>
     </message>
     <message>
-        <location filename="../QFactorMain.cpp" line="197"/>
+        <location filename="../QFactorMain.cpp" line="200"/>
         <source>Invalid key</source>
         <translation>Chiave non valida</translation>
     </message>
     <message>
-        <location filename="../QFactorMain.cpp" line="201"/>
+        <location filename="../QFactorMain.cpp" line="204"/>
         <source>Open</source>
         <translation>Aperto</translation>
     </message>
