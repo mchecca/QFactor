@@ -1,5 +1,5 @@
 #include "TOTP.h"
-#include "liboath/oath.h"
+#include "TOTPUtil.h"
 #include <time.h>
 
 TOTP::TOTP(QString name, QString key, int tokenLength, QString website)
@@ -49,7 +49,7 @@ QString TOTP::generateToken(int *result)
     char *secret = NULL;
     size_t secret_len = 0;
 
-    if (oath_base32_decode(key, key_len, &secret, &secret_len) != OATH_OK)
+    if (base32_decode(key, key_len, &secret, &secret_len) != TOTP_OK)
     {
         tmp_result = TOTP_INVALID_KEY;
     }
@@ -57,7 +57,7 @@ QString TOTP::generateToken(int *result)
     {
         time_t time_now = time(0);
         char *output = (char *) calloc (sizeof(char*), 7);
-        if (oath_totp_generate(secret, secret_len, time_now, 30, 0, this->m_tokenLength, output) != OATH_OK)
+        if (totp_generate(secret, secret_len, time_now, 30, 0, this->m_tokenLength, output) != TOTP_OK)
         {
             tmp_result = TOTP_ERROR;
         }

@@ -9,6 +9,7 @@
 #define TOTP_INVALID_KEY -2
 
 #define DEFAULT_TOTP_KEY_LEN 6
+
 class TOTP
 {
 
