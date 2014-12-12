@@ -42,12 +42,6 @@ void TOTP::setWebsite(QString website)
 
 QString TOTP::generateToken(int *result)
 {
-    if (oath_init() != OATH_OK) {
-        if (result)
-            *result = TOTP_ERROR;
-        return QString();
-    }
-
     QString token = "N/A";
     int tmp_result = TOTP_ERROR;
     char *key = strdup(m_key.toStdString().c_str());
@@ -76,8 +70,6 @@ QString TOTP::generateToken(int *result)
     }
     free(key);
     free(secret);
-
-    oath_done();
 
     if (result)
         *result = tmp_result;
