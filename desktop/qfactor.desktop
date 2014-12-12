@@ -1,0 +1,8 @@
+[Desktop Entry]
+Comment=A TOTP token generator
+Terminal=false
+Name=QFactor
+Exec=/usr/local/bin/qfactor
+Type=Application
+Icon=/usr/local/share/qfactor/lock.png
+Categories=Utility;
