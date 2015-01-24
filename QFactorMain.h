@@ -27,7 +27,7 @@ public slots:
     void refreshTimerTimeout();
     void clipboardTimerTimeout();
     void totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
-    void totpDoubleClicked(QModelIndex index);
+    void totpItemClicked(QModelIndex index);
     void totpItemCellChanged(int row, int column);
     void deleteClicked();
 

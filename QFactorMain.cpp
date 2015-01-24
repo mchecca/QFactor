@@ -42,7 +42,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
     connect(refreshTimer, SIGNAL(timeout()), this, SLOT(refreshTimerTimeout()));
     connect(clipboardTimer, SIGNAL(timeout()), this, SLOT(clipboardTimerTimeout()));
     connect(ui->tblTotp, SIGNAL(currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)), this, SLOT(totpItemChanged(QTableWidgetItem*,QTableWidgetItem*)));
-    connect(ui->tblTotp, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(totpDoubleClicked(QModelIndex)));
+    connect(ui->tblTotp, SIGNAL(clicked(QModelIndex)), this, SLOT(totpItemClicked(QModelIndex)));
     connect(ui->tblTotp, SIGNAL(cellChanged(int,int)), this, SLOT(totpItemCellChanged(int,int)));
     connect(ui->btnDelete, SIGNAL(clicked()), this, SLOT(deleteClicked()));
 
@@ -97,7 +97,7 @@ void QFactorMain::totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *p
     ui->btnDelete->setEnabled(enabled);
 }
 
-void QFactorMain::totpDoubleClicked(QModelIndex index)
+void QFactorMain::totpItemClicked(QModelIndex index)
 {
     TOTP *t = getTotpFromItemRow(index.row());
     /* copy to clipboard only if the token column was clicked */
