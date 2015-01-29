@@ -5,6 +5,7 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QAction>
 #include "NewTOTPDialog.h"
 #include "ui_QFactorMain.h"
 
@@ -45,6 +46,12 @@ QFactorMain::QFactorMain(QWidget *parent) :
     connect(ui->tblTotp, SIGNAL(clicked(QModelIndex)), this, SLOT(totpItemClicked(QModelIndex)));
     connect(ui->tblTotp, SIGNAL(cellChanged(int,int)), this, SLOT(totpItemCellChanged(int,int)));
     connect(ui->btnDelete, SIGNAL(clicked()), this, SLOT(deleteClicked()));
+
+    /* Keyboard shortcuts */
+    QAction *quit = new QAction(this);
+    quit->setShortcut(Qt::CTRL | Qt::Key_Q);
+    connect(quit, SIGNAL(triggered()), this, SLOT(close()));
+    this->addAction(quit);
 
     refreshTimerTimeout();
 }
