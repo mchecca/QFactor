@@ -95,6 +95,7 @@ void QFactorMain::clipboardTimerTimeout()
 {
     ui->lblStatus->setText(QString());
     clipboardTimer->stop();
+    QApplication::clipboard()->clear();
 }
 
 void QFactorMain::totpItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
