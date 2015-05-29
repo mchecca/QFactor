@@ -59,6 +59,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
 QFactorMain::~QFactorMain()
 {
     saveSettings();
+    QApplication::clipboard()->clear();
     delete ui;
     foreach (TOTP *t, totpList)
         delete t;
