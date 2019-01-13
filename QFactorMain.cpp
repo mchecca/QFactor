@@ -4,6 +4,8 @@
 #include <QDateTime>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <QFont>
+#include <QProcess>
 #include <QUrl>
 #include <QAction>
 #include "NewTOTPDialog.h"
@@ -23,12 +25,13 @@ QFactorMain::QFactorMain(QWidget *parent) :
     move(screenFrame.topLeft());
 
     /* set up TOTP table */
-    ui->tblTotp->setColumnCount(4);
+    ui->tblTotp->setColumnCount(5);
     ui->tblTotp->setHorizontalHeaderLabels(QStringList() <<
                                            tr("Account") <<
                                            tr("Token") <<
                                            tr("Website") <<
-                                           tr("Action"));
+                                           tr("Action") <<
+                                           tr("QR Code"));
 
     loadSettings();
 
@@ -129,6 +132,49 @@ void QFactorMain::totpItemClicked(QModelIndex index)
     {
         QDesktopServices::openUrl(QUrl(t->website()));
     }
+    /* if show QR was clicked, pop up the image in a new window */
+    else if (index.column() == 4)
+    {
+        QString cmd = "qrencode";
+        QString otpUri = QString("otpauth://totp/%1?secret=%2").arg(t->name(), t->key());
+        QStringList args = QStringList() << "-t" << "png" << otpUri << "-o" << "-";
+        QProcess p(this);
+        p.start(cmd, args, QProcess::ReadOnly);
+        if (p.waitForFinished() && p.exitStatus() == QProcess::NormalExit)
+        {
+            QByteArray output = p.readAllStandardOutput();
+            QPixmap qrPixmap = QPixmap::fromImage(QImage::fromData(output));
+            QDialog *dialog = new QDialog(this);
+            QLayout *layout = new QGridLayout(dialog);
+            QLabel *nameLabel = new QLabel(dialog);
+            QLabel *label = new QLabel(dialog);
+            QPushButton *close = new QPushButton(dialog);
+            connect(close, &QPushButton::clicked, dialog, &QDialog::accept);
+            layout->addWidget(nameLabel);
+            layout->addWidget(label);
+            layout->addWidget(close);
+            nameLabel->setText(t->name());
+            nameLabel->setAlignment(Qt::AlignCenter);
+            nameLabel->setFont(QFont(nameLabel->font().family(), 18));
+            label->setPixmap(qrPixmap.scaledToWidth(this->width() / 2));
+            close->setText("Close");
+            dialog->resize(this->width() / 2, this->height() / 2);
+            dialog->setWindowFlag(Qt::FramelessWindowHint);
+            dialog->setWindowModality(Qt::WindowModal);
+            dialog->setLayout(layout);
+            label->show();
+            dialog->show();
+        }
+        else
+        {
+            QString errorMsg = p.errorString();
+            if (p.error() == QProcess::FailedToStart)
+            {
+                errorMsg = "Unable to find qrencode binary";
+            }
+            QMessageBox::critical(this, "QFactor", errorMsg);
+        }
+    }
 }
 
 void QFactorMain::totpItemCellChanged(int row, int column)
@@ -180,13 +226,16 @@ void QFactorMain::addTOTP(QString name, QString key, int tokenLength, QString we
     QTableWidgetItem *item = new QTableWidgetItem(totp->name());
     QTableWidgetItem *tokenItem = new QTableWidgetItem();
     QTableWidgetItem *actionItem = new QTableWidgetItem();
+    QTableWidgetItem *qrItem = new QTableWidgetItem();
     item->setData(Qt::UserRole, qVariantFromValue((void *) totp));
     tokenItem->setFlags(tokenItem->flags() ^ Qt::ItemIsEditable);
     actionItem->setFlags(actionItem->flags() ^ Qt::ItemIsEditable);
+    qrItem->setFlags(qrItem->flags() ^ Qt::ItemIsEditable);
     ui->tblTotp->setItem(rowCount, 0, item);
     ui->tblTotp->setItem(rowCount, 1, tokenItem);
     ui->tblTotp->setItem(rowCount, 2, new QTableWidgetItem());
     ui->tblTotp->setItem(rowCount, 3, actionItem);
+    ui->tblTotp->setItem(rowCount, 4, qrItem);
     refreshTotps();
     if (save)
         saveSettings();
@@ -200,6 +249,7 @@ void QFactorMain::refreshTotps()
         QTableWidgetItem *token_item = ui->tblTotp->item(i, 1);
         QTableWidgetItem *website = ui->tblTotp->item(i, 2);
         QTableWidgetItem *action = ui->tblTotp->item(i, 3);
+        QTableWidgetItem *qr = ui->tblTotp->item(i, 4);
         TOTP *t = getTotpFromItemRow(account->row());
         /* TODO: Figure out why this sometimes happens */
         if (!(account && token_item && website && action))
@@ -211,6 +261,8 @@ void QFactorMain::refreshTotps()
         token_item->setText(token_str);
         website->setText(t->website());
         action->setText(tr("Open"));
+        qr->setText(tr("Show"));
+
     }
     ui->tblTotp->resizeColumnsToContents();
 }
