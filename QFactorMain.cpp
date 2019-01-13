@@ -53,7 +53,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
     connect(quit, SIGNAL(triggered()), this, SLOT(close()));
     this->addAction(quit);
 
-    refreshTimerTimeout();
+    QTimer::singleShot(0, this, SLOT(refreshTimerTimeout()));
 }
 
 QFactorMain::~QFactorMain()
