@@ -5,6 +5,9 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QFont>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QProcess>
 #include <QUrl>
 #include <QAction>
@@ -16,8 +19,7 @@ QFactorMain::QFactorMain(QWidget *parent) :
     ui(new Ui::QFactorMain)
 {
     ui->setupUi(this);
-    ui->lblStatus->setText(QString());
-    settings = new QSettings("Michael Checca", "QFactor");
+    ui->lblStatus->setText(QString());;
 
     /* center the window */
     QRect screenFrame = frameGeometry();
@@ -70,7 +72,6 @@ QFactorMain::~QFactorMain()
     clipboardTimer->stop();
     delete refreshTimer;
     delete clipboardTimer;
-    delete settings;
 }
 
 void QFactorMain::addClicked()
@@ -269,47 +270,109 @@ void QFactorMain::refreshTotps()
 
 void QFactorMain::loadSettings()
 {
-    QPoint location = settings->value("ui/location", this->pos()).toPoint();
-    QSize size = settings->value("ui/size", this->size()).toSize();
-    bool isMaximized = settings->value("ui/maximized", false).toBool();
-    this->move(location);
-    this->resize(size);
-    if (isMaximized)
-        this->showMaximized();
-    int totp_count = settings->value("totp/count", QVariant(0)).toInt();
-    for (int i = 0; i < totp_count; i++)
+    QFile settingsFile(SETTINGS_FILE);
+    if (settingsFile.exists() && settingsFile.open(QIODevice::ReadOnly))
     {
-        QString nameKey = QString("totp/%1/name").arg(QString::number(i));
-        QString keyKey = QString("totp/%1/key").arg(QString::number(i));
-        QString tokenLengthKey = QString("totp/%1/tokenlength").arg(QString::number(i));
-        QString websiteKey = QString("totp/%1/website").arg(QString::number(i));
-        QString name = settings->value(nameKey, QString()).toString();
-        QString key = settings->value(keyKey, QString()).toString();
-        int tokenLength = settings->value(tokenLengthKey, DEFAULT_TOTP_KEY_LEN).toInt();
-        QString website = settings->value(websiteKey, QString()).toString();
-        addTOTP(name, key, tokenLength, website, false);
+        QByteArray data = settingsFile.readAll();
+        QJsonParseError error;
+        QJsonDocument settingsDoc = QJsonDocument::fromJson(data, &error);
+        if (error.error == QJsonParseError::NoError)
+        {
+            QJsonObject settingsObj, locationObj, sizeObj;
+            QJsonValue locationValue, sizeValue;
+            settingsObj = settingsDoc.object();
+            locationValue = settingsObj.value("location");
+            if (!locationValue.isNull())
+            {
+                locationObj = locationValue.toObject();
+                if (!locationObj.isEmpty())
+                {
+                    QPoint location(locationObj.value("x").toInt(this->pos().x()),
+                                    locationObj.value("y").toInt(this->pos().y()));
+                    this->move(location);
+                }
+            }
+            sizeValue = settingsObj.value("size");
+            if (!sizeValue.isNull())
+            {
+                sizeObj = sizeValue.toObject();
+                if (!sizeObj.isEmpty())
+                {
+                    QSize size(sizeObj.value("width").toInt(this->size().width()),
+                               sizeObj.value("height").toInt(this->size().height()));
+                    this->resize(size);
+                }
+            }
+            bool isMaximized = settingsObj.value("maximized").toBool(false);
+            if (isMaximized)
+            {
+                this->showMaximized();
+            }
+        }
+    }
+
+    QFile totpFile(TOTP_FILE);
+    if (totpFile.exists() && totpFile.open(QIODevice::ReadOnly))
+    {
+        QByteArray data = totpFile.readAll();
+        QJsonParseError error;
+        QJsonDocument totpDoc = QJsonDocument::fromJson(data, &error);
+        if (error.error == QJsonParseError::NoError)
+        {
+            QJsonArray totps = totpDoc.array();
+            for (QJsonValue t : totps)
+            {
+                QJsonObject tObj = t.toObject();
+                if (tObj.isEmpty())
+                {
+                    continue;
+                }
+                QString secret, label, website;
+                int digits;
+                secret = tObj.value("secret").toString();
+                label = tObj.value("label").toString();
+                website = tObj.value("website").toString();
+                digits = tObj.value("digits").toInt();
+                addTOTP(label, secret, digits, website, false);
+            }
+        }
     }
     refreshTotps();
 }
 
 void QFactorMain::saveSettings()
 {
-    settings->clear();
-    settings->setValue("ui/location", this->pos());
-    settings->setValue("ui/size", this->size());
-    settings->setValue("ui/maximized", this->isMaximized());
-    settings->setValue("totp/count", totpList.count());
-    for (int i = 0; i < totpList.count(); i++)
+    QJsonDocument settingsDoc;
+    QJsonObject settingsObj, locationObj, sizeObj;
+    locationObj.insert("x", this->pos().x());
+    locationObj.insert("y", this->pos().y());
+    settingsObj.insert("location", locationObj);
+    sizeObj.insert("width", this->size().width());
+    sizeObj.insert("height", this->size().height());
+    settingsObj.insert("size", sizeObj);
+    settingsObj.insert("maximized", this->isMaximized());
+    settingsDoc.setObject(settingsObj);
+    QFile settingsFile(SETTINGS_FILE);
+    if (SETTINGS_DIR.mkpath(".") && settingsFile.open(QIODevice::WriteOnly))
     {
-        TOTP *t = totpList.at(i);
-        QString nameKey = QString("totp/%1/name").arg(QString::number(i));
-        QString keyKey = QString("totp/%1/key").arg(QString::number(i));
-        QString tokenLengthKey = QString("totp/%1/tokenlength").arg(QString::number(i));
-        QString websiteKey = QString("totp/%1/website").arg(QString::number(i));
-        settings->setValue(nameKey, t->name());
-        settings->setValue(keyKey, t->key());
-        settings->setValue(tokenLengthKey, t->tokenLength());
-        settings->setValue(websiteKey, t->website());
+        settingsFile.write(settingsDoc.toJson(QJsonDocument::Indented));
+    }
+    QJsonArray totps;
+    for (TOTP *t : totpList)
+    {
+        QJsonObject totpObj;
+        totpObj.insert("secret", t->key());
+        totpObj.insert("label", t->name());
+        totpObj.insert("website", t->website());
+        totpObj.insert("digits", t->tokenLength());
+        totps.append(totpObj);
+    }
+    QJsonDocument totpDoc;
+    totpDoc.setArray(totps);
+    QFile totpFile(TOTP_FILE);
+    if (SETTINGS_DIR.mkpath(".") && totpFile.open(QIODevice::WriteOnly))
+    {
+        totpFile.write(totpDoc.toJson(QJsonDocument::Indented));
     }
 }
 

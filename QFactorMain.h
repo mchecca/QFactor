@@ -1,14 +1,18 @@
 #ifndef QFACTORMAIN_H
 #define QFACTORMAIN_H
 
+#include <QDir>
 #include <QMainWindow>
 #include <QTableWidget>
 #include <QTableWidgetItem>
-#include <QSettings>
+#include <QStandardPaths>
 #include <QTimer>
 #include "TOTP.h"
 
 #define TOKEN_REFRESH_RATE 30 /* seconds */
+const QDir SETTINGS_DIR = QDir(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)).absoluteFilePath("QFactor"));
+const QString SETTINGS_FILE = SETTINGS_DIR.absoluteFilePath("settings.json");
+const QString TOTP_FILE = SETTINGS_DIR.absoluteFilePath("totp.json");
 
 namespace Ui {
 class QFactorMain;
@@ -36,7 +40,6 @@ private:
     QList<TOTP*> totpList;
     QTimer *refreshTimer;
     QTimer *clipboardTimer;
-    QSettings *settings;
 
     void addTOTP(QString name, QString key, int tokenLength, QString website, bool save = true);
     void refreshTotps();
