@@ -1,12 +1,18 @@
 #include "TOTPUtil.h"
 
-#ifdef __linux__
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+#define TOTP_AVAILABLE 1
+#endif
+#ifdef Q_OS_LINUX
 #include "liboath/oath.h"
+#endif
+#ifdef Q_OS_MAC
+#include "oath.h"
 #endif
 
 static int base32_decode (const char *in, size_t inlen, char **out, size_t *outlen)
 {
-#ifdef __linux__
+#ifdef TOTP_AVAILABLE
     return oath_base32_decode(in, inlen, out, outlen);
 #else
     return TOTP_NOT_OK;
@@ -17,7 +23,7 @@ static int totp_generate (const char *secret, size_t secret_length, time_t now,
                     unsigned time_step_size, time_t start_offset,
                     unsigned digits, char *output_otp)
 {
-#ifdef __linux__
+#ifdef TOTP_AVAILABLE
     return oath_totp_generate(secret, secret_length, now, time_step_size,
                               start_offset, digits, output_otp);
 #else
@@ -29,7 +35,7 @@ QString totpGenerate(QString key, int token_length, int *result)
 {
     QString token = "N/A";
     int tmp_result = TOTP_NOT_OK;
-#ifdef __linux__
+#ifdef TOTP_AVAILABLE
     char *secret = NULL;
     size_t secret_len = 0;
 
